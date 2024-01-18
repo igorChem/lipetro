@@ -373,7 +373,7 @@ def Run_Scan_2D(name,analysis="False"):
 	rc2.GetRCLabel(proj.system)
 	
 	stepsx= 12
-	stepsy= 12
+	stepsy= 24
 	
 	parameters = { "ATOMS_RC1":atoms1	,
 					"ATOMS_RC2":atoms2	,
@@ -390,7 +390,7 @@ def Run_Scan_2D(name,analysis="False"):
 					"MC_RC2":		True ,
 					"log_frequency":50    ,
 					"simulation_type":"Relaxed_Surface_Scan",
-					"NmaxThreads":        4}
+					"NmaxThreads":        8}
 	
 	if analysis == "False":	proj.Run_Simulation(parameters)
 	
