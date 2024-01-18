@@ -1,5 +1,6 @@
 import sys                                                                                
 sys.path.append("/home/igorchem/pDynamo3_scripts")
+sys.path.append("/home/igorchem/programs/pDynamo3_scripts")
 
 import os,glob
 
