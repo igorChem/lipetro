@@ -359,7 +359,7 @@ def Run_Scan_2D(name,analysis="False"):
 	base_pkl = os.path.join(local,"OPT_QMMM","am1","sys01amber.pkl")
 	proj = SimulationProject.From_PKL(base_pkl,os.path.join(local,name))
 	selections = proj.system.qcState.pureQCAtoms
-	_parameters_b = {"method_class":"SMO","Hamiltonian":method,"QCcharge":0,"multiplicity":1,"region":selections}
+	_parameters_b = {"method_class":"SMO","Hamiltonian":name,"QCcharge":0,"multiplicity":1,"region":selections}
 	proj.Set_QC_Method(_parameters_b)
 	proj.Energy	
 	
