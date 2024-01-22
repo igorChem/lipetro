@@ -358,7 +358,11 @@ def Run_Scan_2D(name,analysis="False"):
 
 	base_pkl = os.path.join(local,"OPT_QMMM","am1","sys01amber.pkl")
 	proj = SimulationProject.From_PKL(base_pkl,os.path.join(local,name))
-		
+	selections = proj.system.qcState.pureQCAtoms
+	_parameters_b = {"method_class":"SMO","Hamiltonian":method,"QCcharge":0,"multiplicity":1,"region":selections}
+	proj.Set_QC_Method(_parameters_b)
+	proj.Energy	
+	
 	C  = AtomSelection.FromAtomPattern(proj.system,"*:CO2.414:C")
 	OW = AtomSelection.FromAtomPattern(proj.system,"*:WAT.628:O")
 	H1  = AtomSelection.FromAtomPattern(proj.system,"*:WAT.628:H1")
@@ -396,13 +400,15 @@ def Run_Scan_2D(name,analysis="False"):
 	if analysis == "False":	proj.Run_Simulation(parameters)
 	
 	log_path = os.path.join(local,name,"ScanTraj.log")
-	parameters = {"ysize":stepsx,
-				  "xsize":stepsy,
+	parameters = {"xsize":stepsx,
+				  "ysize":stepsy,
 				  "type":"2D",
+				  "xlim_list":[-0.6,0.6],
+				  "ylim_list":[3.5,1.30],
 				  "log_name":log_path,
 				  "crd1_label":rc1.label,
 				  "crd2_label":rc2.label,
-				  "contour_lines":14,
+				  "contour_lines":20,
 				  "analysis_type":"Energy_Plots"}
 				  
 	proj.Run_Analysis(parameters)
