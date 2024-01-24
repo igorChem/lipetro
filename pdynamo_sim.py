@@ -445,7 +445,7 @@ def Refine_MOPAC():
 	rc2.GetRCLabel(proj.system)
 	
 	methods = ["am1","pm3","pm6","pm7","rm1"]
-	_path = os.path.join( os.path.join(local,"SCANS2D","pm3","ScanTraj.ptGeo") )
+	_path = os.path.join( os.path.join(local,"pm3","ScanTraj.ptGeo") )
 	parameters = { "xnbins":12			,
 				   "ynbins":24			,
 				   "mopac_keywords":["grad qmmm","ITRY=5000"] ,
