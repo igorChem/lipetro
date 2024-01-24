@@ -361,7 +361,7 @@ def Run_Scan_2D(name,analysis="False"):
 	selections = proj.system.qcState.pureQCAtoms
 	_parameters_b = {"method_class":"SMO","Hamiltonian":name,"QCcharge":0,"multiplicity":1,"region":selections}
 	proj.Set_QC_Method(_parameters_b)
-	proj.Energy	
+	proj.Energy
 	
 	C  = AtomSelection.FromAtomPattern(proj.system,"*:CO2.414:C")
 	OW = AtomSelection.FromAtomPattern(proj.system,"*:WAT.628:O")
@@ -408,7 +408,7 @@ def Run_Scan_2D(name,analysis="False"):
 				  "log_name":log_path,
 				  "crd1_label":rc1.label,
 				  "crd2_label":rc2.label,
-				  "contour_lines":20,
+				  "contour_lines":16,
 				  "analysis_type":"Energy_Plots"}
 				  
 	proj.Run_Analysis(parameters)
@@ -422,6 +422,99 @@ def convert():
 	_path = os.path.join(local,"SCAN2D_a","trajA.ptGeo")
 	trajAn = TrajectoryAnalysis(_path,proj.system,16)
 	trajAn.Save_DCD()
+	
+	
+#-----------------------------------------------------------------------
+def Refine_MOPAC():
+	'''
+	'''
+	base_pkl = os.path.join(local,"OPT_QMMM","am1","sys01amber.pkl")
+	proj = SimulationProject.From_PKL(base_pkl,os.path.join(local,"mopac_ref"))
+	
+	C  = AtomSelection.FromAtomPattern(proj.system,"*:CO2.414:C")
+	OW = AtomSelection.FromAtomPattern(proj.system,"*:WAT.628:O")
+	H1  = AtomSelection.FromAtomPattern(proj.system,"*:WAT.628:H1")
+	aco = AtomSelection.FromAtomPattern(proj.system,"*:ACO.397:O1")
+	
+	atoms1 = [ OW[0], H1[0], aco[0] ] 
+	atoms2 = [ OW[0], C[0] ]
+
+	rc1 = ReactionCoordinate(atoms1,True)
+	rc1.GetRCLabel(proj.system)
+	rc2 = ReactionCoordinate(atoms2,True)
+	rc2.GetRCLabel(proj.system)
+	
+	methods = ["am1","pm3","pm6","pm7","rm1"]
+	_path = os.path.join( os.path.join(local,"SCANS2D","pm3","ScanTraj.ptGeo") )
+	arameters = { "xnbins":12			,
+				   "ynbins":24			,
+				   "mopac_keywords":["grad qmmm","ITRY=5000"] ,
+				   "source_folder":_path,
+				   "folder":os.path.join(scratch_path, "MopacRef"),
+				   "charge":0		    ,
+				   "multiplicity":1 	,
+				   "methods_lists":methods,	
+				   "NmaxThreads":20		,
+				   "simulation_type":"Energy_Refinement",
+				   "Software":"mopac"	}
+	#---------------------------------------------
+	proj.Run_Simulation(parameters)	
+	parameters= {"xsize":12,
+				 "ysize":24,
+				 "xlim_list":[-0.6,0.6],
+				 "ylim_list":[3.5,1.30],
+				 "log_name":os.path.join(local,"MopacRef","energy.log"),
+				 "crd1_label":rc1_md.label,"multiple_plot":"log_names",
+				 "analysis_type":"Energy_Plots","type":"2DRef" }
+	#--------------------------------------------
+	proj.Run_Analysis(parameters)
+#-----------------------------------------------------------------------
+def Refine_ORCA():
+	'''
+	'''	
+	base_pkl = os.path.join(local,"OPT_QMMM","am1","sys01amber.pkl")
+	proj = SimulationProject.From_PKL(base_pkl,os.path.join(local,"ORCA_REF"))
+	
+	C  = AtomSelection.FromAtomPattern(proj.system,"*:CO2.414:C")
+	OW = AtomSelection.FromAtomPattern(proj.system,"*:WAT.628:O")
+	H1  = AtomSelection.FromAtomPattern(proj.system,"*:WAT.628:H1")
+	aco = AtomSelection.FromAtomPattern(proj.system,"*:ACO.397:O1")
+	
+	atoms1 = [ OW[0], H1[0], aco[0] ] 
+	atoms2 = [ OW[0], C[0] ]
+
+	rc1 = ReactionCoordinate(atoms1,True)
+	rc1.GetRCLabel(proj.system)
+	rc2 = ReactionCoordinate(atoms2,True)
+	rc2.GetRCLabel(proj.system)
+	
+		
+	_path = os.path.join( os.path.join(local,"SCANS2D","pm3","ScanTraj.ptGeo") )
+	#---------------------------------------------
+	parameters = { "xnbins":12			                                           ,
+				   "ynbins":24			                                           ,
+				   "source_folder":_path                                           ,
+				   "orca_method":"b3lyp"                                           ,
+				   "basis":"3-21G"                                                 , 
+				   "folder":os.path.join(local,"ORCA_REF")	        		,
+				   "charge":0		                                               ,
+				   "multiplicity":1 	                                           ,
+				   "restart":False                                                 ,                                             
+				   "NmaxThreads":4	                                   ,
+				   "simulation_type":"Energy_Refinement"                           ,
+				   "Software":"ORCA"	                                           }
+	#---------------------------------------------
+	#proj.Run_Simulation(parameters)
+
+	parameters= {"xsize":12,"ysize":24,
+				 "log_name":os.path.join(local,"ORCA_REF","energy.log"),
+				 "crd1_label":rc1.label,
+				 "crd2_label":rc2.label,
+				 "xlim_list":[-0.6,0.6],
+				 "ylim_list":[3.5,1.30],
+				 "contour_lines":16,
+				 "analysis_type":"Energy_Plots","type":"2DRef" }
+	proj.Run_Analysis(parameters)
 
 #-----------------------------------------------------------------------
 if __name__ == "__main__":
@@ -433,6 +526,8 @@ if __name__ == "__main__":
 	elif 	sys.argv[1] == "scan1d"     : Run_Scan_1D(name=sys.argv[2],coord=sys.argv[3],method=sys.argv[4])
 	elif 	sys.argv[1] == "scan2d"     : Run_Scan_2D(sys.argv[2],sys.argv[3])
 	elif 	sys.argv[1] == "scan_analysis"     : Scan_Analysis()
+	elif 	sys.argv[1] == "orca"     : Refine_ORCA()
+	elif 	sys.argv[1] == "mopac"     : Refine_MOPAC()
 	else: convert()
 	
 
