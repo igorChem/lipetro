@@ -425,7 +425,7 @@ def convert():
 	
 	
 #-----------------------------------------------------------------------
-def Refine_MOPAC():
+def Refine_MOPAC(run="True"):
 	'''
 	'''
 	base_pkl = os.path.join(local,"OPT_QMMM","am1","sys01amber.pkl")
@@ -443,27 +443,30 @@ def Refine_MOPAC():
 	rc1.GetRCLabel(proj.system)
 	rc2 = ReactionCoordinate(atoms2,True)
 	rc2.GetRCLabel(proj.system)
-	
+		
 	methods = ["am1","pm3","pm6","pm7","rm1"]
 	_path = os.path.join( os.path.join(local,"pm3","ScanTraj.ptGeo") )
 	parameters = { "xnbins":12			,
 				   "ynbins":24			,
-				   "mopac_keywords":["grad qmmm","ITRY=5000"] ,
+				   "mopac_keywords":["ITRY=5000"] ,
 				   "source_folder":_path,
 				   "folder":os.path.join(local, "MopacRef"),
 				   "charge":0		    ,
 				   "multiplicity":1 	,
+				   "change_qc_region":True                   ,
+				   #"center": [26.732,7.702,29.268]           ,
+				   #"radius": 10.0 ,
 				   "methods_lists":methods,	
 				   "NmaxThreads":1		,
 				   "simulation_type":"Energy_Refinement",
 				   "Software":"mopac"	}
 	#---------------------------------------------
-	proj.Run_Simulation(parameters)	
+	if run == "True": proj.Run_Simulation(parameters)	
 	parameters= {"xsize":12,
 				 "ysize":24,
 				 "xlim_list":[-0.6,0.6],
 				 "ylim_list":[3.5,1.30],
-				 "log_name":os.path.join(local,"MopacRef","energy.log"),
+				 "log_name":os.path.join(local,"MopacRef10","energy.log"),
 				 "crd1_label":rc1.label,"multiple_plot":"log_names",
 				 "analysis_type":"Energy_Plots","type":"2DRef" }
 	#--------------------------------------------
@@ -495,8 +498,8 @@ def Refine_ORCA():
 				   "ynbins":24			                                           ,
 				   "source_folder":_path                                           ,
 				   "orca_method":"b3lyp"                                           ,
-				   "basis":"3-21G"                                                 , 
-				   "folder":os.path.join(local,"ORCA_REF")	        		,
+				   "basis":"6-31G*"                                                 , 
+				   "folder":os.path.join(local,"ORCA_REF2")	        		,
 				   "charge":0		                                               ,
 				   "multiplicity":1 	                                           ,
 				   "restart":False                                                 ,                                             
@@ -504,10 +507,10 @@ def Refine_ORCA():
 				   "simulation_type":"Energy_Refinement"                           ,
 				   "Software":"ORCA"	                                           }
 	#---------------------------------------------
-	#proj.Run_Simulation(parameters)
+	proj.Run_Simulation(parameters)
 
 	parameters= {"xsize":12,"ysize":24,
-				 "log_name":os.path.join(local,"ORCA_REF","energy.log"),
+				 "log_name":os.path.join(local,"ORCA_REF2","energy.log"),
 				 "crd1_label":rc1.label,
 				 "crd2_label":rc2.label,
 				 "xlim_list":[-0.6,0.6],
@@ -527,7 +530,7 @@ if __name__ == "__main__":
 	elif 	sys.argv[1] == "scan2d"     : Run_Scan_2D(sys.argv[2],sys.argv[3])
 	elif 	sys.argv[1] == "scan_analysis"     : Scan_Analysis()
 	elif 	sys.argv[1] == "orca"     : Refine_ORCA()
-	elif 	sys.argv[1] == "mopac"     : Refine_MOPAC()
+	elif 	sys.argv[1] == "mopac"     : Refine_MOPAC(sys.argv[2])
 	else: convert()
 	
 
