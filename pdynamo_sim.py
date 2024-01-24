@@ -464,7 +464,7 @@ def Refine_MOPAC():
 				 "xlim_list":[-0.6,0.6],
 				 "ylim_list":[3.5,1.30],
 				 "log_name":os.path.join(local,"MopacRef","energy.log"),
-				 "crd1_label":rc1_md.label,"multiple_plot":"log_names",
+				 "crd1_label":rc1.label,"multiple_plot":"log_names",
 				 "analysis_type":"Energy_Plots","type":"2DRef" }
 	#--------------------------------------------
 	proj.Run_Analysis(parameters)
