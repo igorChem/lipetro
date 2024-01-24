@@ -453,7 +453,7 @@ def Refine_MOPAC(run="True"):
 				   "folder":os.path.join(local, "MopacRef"),
 				   "charge":0		    ,
 				   "multiplicity":1 	,
-				   "change_qc_region":True                   ,
+				   #"change_qc_region":True                   ,
 				   #"center": [26.732,7.702,29.268]           ,
 				   #"radius": 10.0 ,
 				   "methods_lists":methods,	
