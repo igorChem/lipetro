@@ -450,12 +450,12 @@ def Refine_MOPAC(run="True"):
 				   "ynbins":24			,
 				   "mopac_keywords":["ITRY=5000"] ,
 				   "source_folder":_path,
-				   "folder":os.path.join(local, "MopacRef"),
+				   "folder":os.path.join(local, "MopacRef10"),
 				   "charge":0		    ,
 				   "multiplicity":1 	,
-				   #"change_qc_region":True                   ,
-				   #"center": [26.732,7.702,29.268]           ,
-				   #"radius": 10.0 ,
+				   "change_qc_region":True                   ,
+				   "center": [26.732,7.702,29.268]           ,
+				   "radius": 10.0 ,
 				   "methods_lists":methods,	
 				   "NmaxThreads":1		,
 				   "simulation_type":"Energy_Refinement",
@@ -464,9 +464,10 @@ def Refine_MOPAC(run="True"):
 	if run == "True": proj.Run_Simulation(parameters)	
 	parameters= {"xsize":12,
 				 "ysize":24,
+				 "ndim":2,
 				 "xlim_list":[-0.6,0.6],
 				 "ylim_list":[3.5,1.30],
-				 "log_name":os.path.join(local,"MopacRef","energy.log"),
+				 "log_name":os.path.join(local,"MopacRef10","energy.log"),
 				 "crd1_label":rc1.label,"multiple_plot":"log_names",
 				 "analysis_type":"Energy_Plots","type":"2DRef" }
 	#--------------------------------------------
