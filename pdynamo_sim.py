@@ -446,15 +446,15 @@ def Refine_MOPAC():
 	
 	methods = ["am1","pm3","pm6","pm7","rm1"]
 	_path = os.path.join( os.path.join(local,"SCANS2D","pm3","ScanTraj.ptGeo") )
-	arameters = { "xnbins":12			,
+	parameters = { "xnbins":12			,
 				   "ynbins":24			,
 				   "mopac_keywords":["grad qmmm","ITRY=5000"] ,
 				   "source_folder":_path,
-				   "folder":os.path.join(scratch_path, "MopacRef"),
+				   "folder":os.path.join(local, "MopacRef"),
 				   "charge":0		    ,
 				   "multiplicity":1 	,
 				   "methods_lists":methods,	
-				   "NmaxThreads":20		,
+				   "NmaxThreads":1		,
 				   "simulation_type":"Energy_Refinement",
 				   "Software":"mopac"	}
 	#---------------------------------------------
