@@ -446,10 +446,10 @@ def Refine_MOPAC(run="True",folder="Refine",cut=0.0):
 	
 	cqr = False
 	if cut > 0.001: cqr = True
-	print(cqr)
+	print(run)
 		
 	methods = ["am1","pm3","pm6","rm1","pddgpm3","am1dphot"]
-	_path = os.path.join( os.path.join(local,"pm3","ScanTraj.ptGeo") )
+	_path = os.path.join( os.path.join(local,"SCANS2D","pm3","ScanTraj.ptGeo") )
 	parameters = { "xnbins":12			,
 				   "ynbins":24			,
 				   "mopac_keywords":["ITRY=5000"] ,
@@ -461,7 +461,7 @@ def Refine_MOPAC(run="True",folder="Refine",cut=0.0):
 				   "center": [26.732,7.702,29.268]           ,
 				   "radius": cut ,
 				   "methods_lists":methods,	
-				   "NmaxThreads":1		,
+				   "NmaxThreads":4		,
 				   "simulation_type":"Energy_Refinement",
 				   "Software":"pDynamo"	}
 	#---------------------------------------------
