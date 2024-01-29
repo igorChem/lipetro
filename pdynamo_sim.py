@@ -446,7 +446,7 @@ def Refine_MOPAC(run="True",folder="Refine",cut=0.0):
 	
 	cqr = False
 	if cut > 0.001: cqr = True
-	
+	print(cqr)
 		
 	methods = ["am1","pm3","pm6","rm1","pddgpm3","am1dphot"]
 	_path = os.path.join( os.path.join(local,"pm3","ScanTraj.ptGeo") )
