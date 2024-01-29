@@ -425,11 +425,11 @@ def convert():
 	
 	
 #-----------------------------------------------------------------------
-def Refine_MOPAC(run="True"):
+def Refine_MOPAC(run="True",folder="Refine",cut=0.0):
 	'''
 	'''
 	base_pkl = os.path.join(local,"OPT_QMMM","am1","sys01amber.pkl")
-	proj = SimulationProject.From_PKL(base_pkl,os.path.join(local,"mopac_ref"))
+	proj = SimulationProject.From_PKL(base_pkl,os.path.join(local,folder))
 	
 	C  = AtomSelection.FromAtomPattern(proj.system,"*:CO2.414:C")
 	OW = AtomSelection.FromAtomPattern(proj.system,"*:WAT.628:O")
@@ -443,31 +443,37 @@ def Refine_MOPAC(run="True"):
 	rc1.GetRCLabel(proj.system)
 	rc2 = ReactionCoordinate(atoms2,True)
 	rc2.GetRCLabel(proj.system)
+	
+	cqr = True
+	if cut == 0.0: cqr = False
+	
 		
-	methods = ["am1","pm3","pm6","pm7","rm1"]
+	methods = ["am1","pm3","pm6","rm1","pddgpm3","am1dphot"]
 	_path = os.path.join( os.path.join(local,"pm3","ScanTraj.ptGeo") )
 	parameters = { "xnbins":12			,
 				   "ynbins":24			,
 				   "mopac_keywords":["ITRY=5000"] ,
 				   "source_folder":_path,
-				   "folder":os.path.join(local, "MopacRef10"),
+				   "folder":os.path.join(local, folder),
 				   "charge":0		    ,
 				   "multiplicity":1 	,
-				   "change_qc_region":True                   ,
+				   "change_qc_region":cqr                   ,
 				   "center": [26.732,7.702,29.268]           ,
-				   "radius": 10.0 ,
+				   "radius": cut ,
 				   "methods_lists":methods,	
 				   "NmaxThreads":1		,
 				   "simulation_type":"Energy_Refinement",
-				   "Software":"mopac"	}
+				   "Software":"pDynamo"	}
 	#---------------------------------------------
 	if run == "True": proj.Run_Simulation(parameters)	
 	parameters= {"xsize":12,
 				 "ysize":24,
 				 "ndim":2,
+				 "contour_lines":14,
 				 "xlim_list":[-0.6,0.6],
 				 "ylim_list":[3.5,1.30],
-				 "log_name":os.path.join(local,"MopacRef10","energy.log"),
+				 "log_name":os.path.join(local,folder,"energy.log"),
+				 "crd2_label":rc1.label,
 				 "crd1_label":rc1.label,"multiple_plot":"log_names",
 				 "analysis_type":"Energy_Plots","type":"2DRef" }
 	#--------------------------------------------
