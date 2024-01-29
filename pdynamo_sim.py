@@ -537,7 +537,7 @@ if __name__ == "__main__":
 	elif 	sys.argv[1] == "scan2d"     : Run_Scan_2D(sys.argv[2],sys.argv[3])
 	elif 	sys.argv[1] == "scan_analysis"     : Scan_Analysis()
 	elif 	sys.argv[1] == "orca"     : Refine_ORCA()
-	elif 	sys.argv[1] == "mopac"     : Refine_MOPAC(sys.argv[2])
+	elif 	sys.argv[1] == "mopac"     : Refine_MOPAC(sys.argv[2],sys.argv[3],float(sys.argv[4]))
 	else: convert()
 	
 
