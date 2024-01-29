@@ -444,8 +444,8 @@ def Refine_MOPAC(run="True",folder="Refine",cut=0.0):
 	rc2 = ReactionCoordinate(atoms2,True)
 	rc2.GetRCLabel(proj.system)
 	
-	cqr = True
-	if cut == 0.0: cqr = False
+	cqr = False
+	if cut > 0.001: cqr = True
 	
 		
 	methods = ["am1","pm3","pm6","rm1","pddgpm3","am1dphot"]
