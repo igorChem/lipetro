@@ -498,7 +498,9 @@ def Refine_ORCA():
 	rc2 = ReactionCoordinate(atoms2,True)
 	rc2.GetRCLabel(proj.system)
 	
-		
+	cqr = False
+	if cut > 0.001: cqr = True
+	print(run)
 	_path = os.path.join( os.path.join(local,"SCANS2D","pm3","ScanTraj.ptGeo") )
 	#---------------------------------------------
 	parameters = { "xnbins":12			                                           ,
@@ -513,6 +515,7 @@ def Refine_ORCA():
 				   "NmaxThreads":4	                                   ,
 				   "simulation_type":"Energy_Refinement"                           ,
 				   "Software":"ORCA"	                                           }
+				   
 	#---------------------------------------------
 	proj.Run_Simulation(parameters)
 
@@ -525,7 +528,118 @@ def Refine_ORCA():
 				 "contour_lines":16,
 				 "analysis_type":"Energy_Plots","type":"2DRef" }
 	proj.Run_Analysis(parameters)
+#-----------------------------------------------------------------------
+def Traj_1D(folder,cut=0.0,program="pDynamo",np=4,run="True"):
+	'''
+	'''
+	
+	base_pkl = os.path.join(local,"OPT_QMMM","am1","sys01amber.pkl")
+	proj = SimulationProject.From_PKL(base_pkl,os.path.join(local,"Traj1D"))
+	
+	C  = AtomSelection.FromAtomPattern(proj.system,"*:CO2.414:C")
+	OW = AtomSelection.FromAtomPattern(proj.system,"*:WAT.628:O")
+	H1  = AtomSelection.FromAtomPattern(proj.system,"*:WAT.628:H1")
+	aco = AtomSelection.FromAtomPattern(proj.system,"*:ACO.397:O1")
+	
+	atoms1 = [ OW[0], H1[0], aco[0] ] 
+	atoms2 = [ OW[0], C[0] ]
 
+	rc1 = ReactionCoordinate(atoms1,True)
+	rc1.GetRCLabel(proj.system)
+	rc2 = ReactionCoordinate(atoms2,True)
+	rc2.GetRCLabel(proj.system)
+	
+	_path = os.path.join( os.path.join(local,"Traj1D.ptGeo") )
+	methods = ["am1","pm3","pm6","rm1","pddgpm3"]
+	if program == "mopac": methods = ["am1","pm3","pm6","rm1","pm7"]
+	parameters = { "xnbins":28			,
+				   "mopac_keywords":["ITRY=5000"] ,
+				   "source_folder":_path,
+				   "folder":os.path.join(local, folder),
+				   "charge":0		    ,
+				   "multiplicity":1 	,   
+				   "NmaxThreads":np		,
+				   "simulation_type":"Energy_Refinement",
+				   "Software":program	}
+	if not program == "ORCA":
+		parameters["methods_lists"] = methods
+		if cut > 0.0:
+			parameters["change_qc_region"] = True
+			parameters["radius"] = cut
+			parameters["center"] = [26.732,7.702,29.268] 
+	elif program == "ORCA":
+		parameters["orca_method"]="b3lyp"
+		parameters["basis"]="6-311+G*"   
+		
+		
+	#---------------------------------------------
+	if run == "True": proj.Run_Simulation(parameters)	
+	parameters= {"xsize":28,
+				 "ndim":1,
+				 "log_name":os.path.join(local,folder,"energy.log"),
+				 "crd1_label":"frames","multiple_plot":"log_names",
+				 "analysis_type":"Energy_Plots","type":"1DRef" }				
+	#--------------------------------------------
+	proj.Run_Analysis(parameters)
+	trajAn = TrajectoryAnalysis(_path,proj.system,28)
+	trajAn.Save_DCD()
+	
+#-----------------------------------------------------------------------
+def Free_energy(NmaxThreads=8,run="True"):
+	'''
+	'''
+	base_pkl = os.path.join(local,"OPT_QMMM","am1","sys01amber.pkl")
+	proj = SimulationProject.From_PKL(base_pkl,os.path.join(local,"freeenergy"))
+	
+	selections = proj.system.qcState.pureQCAtoms
+	_parameters_b = {"method_class":"SMO","Hamiltonian":"pm3","QCcharge":0,"multiplicity":1,"region":selections}
+	proj.Set_QC_Method(_parameters_b)
+	proj.Energy
+	
+	C  = AtomSelection.FromAtomPattern(proj.system,"*:CO2.414:C")
+	OW = AtomSelection.FromAtomPattern(proj.system,"*:WAT.628:O")
+	H1  = AtomSelection.FromAtomPattern(proj.system,"*:WAT.628:H1")
+	aco = AtomSelection.FromAtomPattern(proj.system,"*:ACO.397:O1")
+	
+	atoms1 = [ OW[0], H1[0], aco[0] ] 
+	atoms2 = [ OW[0], C[0] ]
+
+	rc1 = ReactionCoordinate(atoms1,True)
+	rc1.GetRCLabel(proj.system)
+	rc2 = ReactionCoordinate(atoms2,True)
+	rc2.GetRCLabel(proj.system)
+	
+	_path = os.path.join( os.path.join(local,"Traj1D.ptGeo") )
+	
+	USparameters = { "ATOMS_RC1":atoms1				,
+				   "ATOMS_RC2":atoms2				,
+				   "ndim":2 						,
+				   "sampling_factor":500			,
+				   "equilibration_nsteps":10000 	,
+				   "production_nsteps":50000		,
+				   "source_folder":_path 			,
+				   "pressure":20.0					,
+				   "pressure_coupling":True			,
+				   "MD_method":"LeapFrog"			,
+				   "MC_RC1":True					,
+				   "MC_RC2":True					,
+				   "simulation_type":"Umbrella_Sampling",
+				   "NmaxThreads":NmaxThreads		}
+
+	if run == "True": proj.Run_Simulation(USparameters)
+
+	_path = os.path.join( scratch_path, "freeenergy")
+	PMFparameters = { "source_folder":_path,
+				   "xnbins":10           ,
+				   "ynbins":10           ,
+				   "ywindows":0          ,
+				   "xwindows":28         ,
+				   "crd1_label":rc1.label,
+				   "crd2_label":rc2.label,
+				   "oneDimPlot":True     ,
+				   "analysis_type":"PMF_Analysis",
+				   "temperature":300.15	 }
+	proj.Run_Analysis(PMFparameters)
 #-----------------------------------------------------------------------
 if __name__ == "__main__":
 	if 		sys.argv[1] == "MM": Def_MM_Sys()
@@ -538,6 +652,10 @@ if __name__ == "__main__":
 	elif 	sys.argv[1] == "scan_analysis"     : Scan_Analysis()
 	elif 	sys.argv[1] == "orca"     : Refine_ORCA()
 	elif 	sys.argv[1] == "mopac"     : Refine_MOPAC(sys.argv[2],sys.argv[3],float(sys.argv[4]))
+	elif 	sys.argv[1] == "traj1d": Traj_1D(sys.argv[2],float(sys.argv[3]),sys.argv[4],int(sys.argv[5]),sys.argv[6])
+	elif 	sys.argv[1] == "FE":     Free_energy( int(sys.argv[2]),sys.argv[3] )
+		
+		
 	else: convert()
 	
 
