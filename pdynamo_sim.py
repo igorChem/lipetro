@@ -498,9 +498,7 @@ def Refine_ORCA():
 	rc2 = ReactionCoordinate(atoms2,True)
 	rc2.GetRCLabel(proj.system)
 	
-	cqr = False
-	if cut > 0.001: cqr = True
-	print(run)
+	
 	_path = os.path.join( os.path.join(local,"SCANS2D","pm3","ScanTraj.ptGeo") )
 	#---------------------------------------------
 	parameters = { "xnbins":12			                                           ,
@@ -508,10 +506,10 @@ def Refine_ORCA():
 				   "source_folder":_path                                           ,
 				   "orca_method":"b3lyp"                                           ,
 				   "basis":"6-31G*"                                                 , 
-				   "folder":os.path.join(local,"ORCA_REF2")	        		,
+				   "folder":os.path.join(local,"ORCA_REF")	        		,
 				   "charge":0		                                               ,
 				   "multiplicity":1 	                                           ,
-				   "restart":False                                                 ,                                             
+				   "restart":True                                                 ,                                             
 				   "NmaxThreads":4	                                   ,
 				   "simulation_type":"Energy_Refinement"                           ,
 				   "Software":"ORCA"	                                           }
@@ -520,7 +518,7 @@ def Refine_ORCA():
 	proj.Run_Simulation(parameters)
 
 	parameters= {"xsize":12,"ysize":24,
-				 "log_name":os.path.join(local,"ORCA_REF2","energy.log"),
+				 "log_name":os.path.join(local,"ORCA_REF","energy.log"),
 				 "crd1_label":rc1.label,
 				 "crd2_label":rc2.label,
 				 "xlim_list":[-0.6,0.6],
@@ -609,11 +607,11 @@ def Free_energy(NmaxThreads=8,run="True"):
 	rc2 = ReactionCoordinate(atoms2,True)
 	rc2.GetRCLabel(proj.system)
 	
-	_path = os.path.join( os.path.join(local,"Traj1D.ptGeo") )
+	_path = os.path.join( os.path.join(local,"Traj1D_pt1.ptGeo") )
 	
-	USparameters = { "ATOMS_RC1":atoms1				,
-				   "ATOMS_RC2":atoms2				,
-				   "ndim":2 						,
+	USparameters = { "ATOMS_RC1":atoms2				,
+				   #"ATOMS_RC2":atoms2				,
+				   "ndim":1 						,
 				   "sampling_factor":500			,
 				   "equilibration_nsteps":10000 	,
 				   "production_nsteps":50000		,
@@ -622,22 +620,22 @@ def Free_energy(NmaxThreads=8,run="True"):
 				   "pressure_coupling":True			,
 				   "MD_method":"LeapFrog"			,
 				   "MC_RC1":True					,
-				   "MC_RC2":True					,
+				   #"MC_RC2":True					,
 				   "simulation_type":"Umbrella_Sampling",
 				   "NmaxThreads":NmaxThreads		}
 
 	if run == "True": proj.Run_Simulation(USparameters)
 
-	_path = os.path.join( scratch_path, "freeenergy")
+	_path = os.path.join( local, "freeenergy")
 	PMFparameters = { "source_folder":_path,
-				   "xnbins":10           ,
-				   "ynbins":10           ,
+				   "xnbins":6           ,
+				   #"ynbins":6           ,
 				   "ywindows":0          ,
-				   "xwindows":28         ,
+				   "xwindows":20         ,
 				   "crd1_label":rc1.label,
-				   "crd2_label":rc2.label,
-				   "oneDimPlot":True     ,
-				   "analysis_type":"PMF_Analysis",
+				   #"crd2_label":rc2.label,
+				   #"oneDimPlot":True     ,
+				   "analysis_type":"PMF",
 				   "temperature":300.15	 }
 	proj.Run_Analysis(PMFparameters)
 #-----------------------------------------------------------------------
